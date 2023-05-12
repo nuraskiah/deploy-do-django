@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os, random, string
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()  # take environment variables from .env.
 
@@ -30,7 +31,7 @@ if not SECRET_KEY:
 # Render Deployment Code
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(",")
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:    
@@ -93,17 +94,22 @@ DB_PASS     = os.getenv('DB_PASS'     , None)
 DB_HOST     = os.getenv('DB_HOST'     , None)
 DB_PORT     = os.getenv('DB_PORT'     , None)
 DB_NAME     = os.getenv('DB_NAME'     , None)
+DB_URL      = os.getenv('DB_URL'      , None)
 
 if DB_ENGINE and DB_NAME and DB_USERNAME:
     DATABASES = { 
-      'default': {
-        'ENGINE'  : 'django.db.backends.' + DB_ENGINE, 
-        'NAME'    : DB_NAME,
-        'USER'    : DB_USERNAME,
-        'PASSWORD': DB_PASS,
-        'HOST'    : DB_HOST,
-        'PORT'    : DB_PORT,
+        'default': {
+            'ENGINE'  : 'django.db.backends.' + DB_ENGINE, 
+            'NAME'    : DB_NAME,
+            'USER'    : DB_USERNAME,
+            'PASSWORD': DB_PASS,
+            'HOST'    : DB_HOST,
+            'PORT'    : DB_PORT,
         }, 
+    }
+elif DB_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(DB_URL)
     }
 else:
     DATABASES = {
